@@ -221,6 +221,7 @@ def product(request,sui):
 
     }
     return render(request,'new cart/shop-single.html',context)
+@login_required
 def store(request):
 
     category=Category.objects.all()
@@ -235,6 +236,7 @@ def store(request):
 
              'category':category}
     return render(request,'new cart/shop.html',context)
+@login_required
 def category_view(request, cid):
     filter=False
     category=Category.objects.get(cid=cid)
@@ -245,7 +247,7 @@ def category_view(request, cid):
         'filter':  filter
     }
     return render(request,'new cart/category.html',context)
-
+@login_required
 def vendor_view(request):
     vendor=Vendor.objects.all()
     context={
@@ -253,6 +255,7 @@ def vendor_view(request):
     }
     return render(request,'new cart/vendor.html',context)
 
+@login_required
 def vender_detail(request,vid):
     vendor=Vendor.objects.get(vid=vid)
     products=Product.objects.filter(vendor=vendor)
@@ -265,7 +268,7 @@ def vender_detail(request,vid):
     }
     return render(request,'new cart/vendor-detail.html',context)
 
-
+@login_required
 def customer_view(request):
     customers=Customer.objects.all()
 
@@ -273,7 +276,7 @@ def customer_view(request):
         'customers':customers
     }
     return render(request,'new cart/customer.html',context)
-
+@login_required
 def customer_detail(request,c_id):
     customer = Customer.objects.get(id=c_id)
     addresses = ShippingAddress.objects.filter(customer=customer).all().order_by('date_add')
@@ -317,7 +320,7 @@ def customer_detail(request,c_id):
     }
     return render(request,'new cart/customer_detail.html',context)
 
-
+@login_required
 def tag_view(request,tag_slug=None):
     products=Product.objects.filter(product_status='published').order_by('-date')
     tag=None
@@ -329,7 +332,7 @@ def tag_view(request,tag_slug=None):
             'products':products,
         }
     return render(request,'new cart/tag_shop.html',context)
-
+@login_required
 def ajax_add_review(request,sui):
     product=Product.objects.get(sui=sui)
     user=request.user
@@ -359,7 +362,7 @@ def ajax_add_review(request,sui):
 
         }
     )
-
+@login_required
 def search_view(request):
     query= request.GET.get('q')
     products=Product.objects.filter(Q(name__icontains=query) | Q(description__icontains=query)).order_by('-date')
@@ -371,7 +374,7 @@ def search_view(request):
         'query':query
     }
     return render(request,'new cart/search.html',context)
-
+@login_required
 def filter_product(request):
     categories=request.GET.getlist('category[]')
     vendors=request.GET.getlist('vendor[]')
@@ -396,7 +399,7 @@ def filter_product(request):
     data= render_to_string("new cart/async/product-list.html",{"products":products})
 
     return JsonResponse({"data":data})
-
+@login_required
 def add_to_cart(request):
     cart_product={}
     totalcaritems=0
@@ -438,7 +441,7 @@ def add_to_cart(request):
 
     return JsonResponse({'data':request.session["cart_data_obj"],'totalcaritems':totalcaritems})
 
-
+@login_required
 def cart_view(request):
     cart_total_amount = 0
     try:
@@ -463,7 +466,7 @@ def cart_view(request):
         print('not in')
         return  redirect("store")
 
-
+@login_required
 def delete_from_cart(request):
     product_id=str(request.GET['id'])
     if 'cart_data_obj' in request.session:
@@ -481,7 +484,7 @@ def delete_from_cart(request):
     context= render_to_string('new cart/async/cart-list.html',{'cart_data':request.session['cart_data_obj'],'totalcartitems':len(request.session['cart_data_obj']),'cart_total_amount':cart_total_amount})
     return JsonResponse({'data':context,'totalcartitems':len(request.session['cart_data_obj']),'cart_total_amount':cart_total_amount})
 
-
+@login_required
 def update_cart(request):
 
     product_id=str(request.GET['id'])
@@ -498,7 +501,7 @@ def update_cart(request):
     context= render_to_string('new cart/async/cart-list.html',{'cart_data':request.session['cart_data_obj'],'totalcartitems':len(request.session['cart_data_obj']),'cart_total_amount':cart_total_amount})
     return JsonResponse({'data':context,'totalcartitems':len(request.session['cart_data_obj']),'cart_total_amount':cart_total_amount})
 
-
+@login_required
 def change_cart_quantity(request):
     product_id=str(request.GET['id'])
     action= str(request.GET['action'])
@@ -601,13 +604,13 @@ def paypal_compeleted_view(request):
     return render(request,'new cart/payapl-completed.html',{'cart_data':cart_data,'totalcartitems':len(cart_data),'cart_total_amount':cart_total_amount })
 
 
-
+@login_required
 def paypal_failed_view(request):
     return render(request,'new cart/paypal-failed.html')
 
 
 
-
+@login_required
 def order_detail(request,o_id):
     order=Order.objects.get(id=o_id)
     orderitem= OrderItem.objects.filter(order=order).all()
@@ -617,21 +620,21 @@ def order_detail(request,o_id):
 
     return  render(request,'new cart/order_detail.html',context)
 
-
+@login_required
 def make_address_default(request):
     id=request.GET['id']
     print(id)
     ShippingAddress.objects.update(status=False)
     ShippingAddress.objects.filter(id=id).update(status=True)
     return JsonResponse({'boolean':True})
-
+@login_required
 def wishlist_view(request):
     wishlist= WishList.objects.all()
     context={
         'ws':wishlist
     }
     return render(request,'new cart/wishlist.html',context)
-
+@login_required
 def add_to_wishlist(request):
     pid = request.GET['id']
     product = Product.objects.get(id=pid)
@@ -654,7 +657,7 @@ def add_to_wishlist(request):
     }
 
     return JsonResponse(context)
-
+@login_required
 def delete_from_wishlist(request):
     customer=Customer.objects.get(user=request.user)
     product_id = request.GET['id']
@@ -667,7 +670,7 @@ def delete_from_wishlist(request):
     data=render_to_string('new cart/async/wish-list.html',{'ws':new_wishlist})
     return JsonResponse({'data':data,'amount':amount})
 
-
+@login_required
 def contact_us_ajax(request):
     full_name = request.GET['name']
     email = request.GET['email']
@@ -680,7 +683,7 @@ def contact_us_ajax(request):
     }
     return JsonResponse(context)
 
-
+@login_required
 def profile_update(request):
     profile = Profile.objects.get(user=request.user)
     if request.method == 'POST':
